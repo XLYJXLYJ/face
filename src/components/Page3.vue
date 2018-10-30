@@ -284,6 +284,15 @@ export default {
   },
 	computed: {
 	},
+	mounted() {
+		this.getUsers();
+		var pass = sessionStorage.getItem('pass');
+		if (pass) {
+			pass = JSON.parse(pass);
+		}else{
+			this.$router.push({ path: '/' });
+		}
+	},
 	methods: {
 		submit(){
 		this.axios.post('/setConfig',{
