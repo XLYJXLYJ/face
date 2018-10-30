@@ -4,25 +4,13 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;padding-top:16px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item>
-					<el-input v-model="nameid" placeholder="姓名" @keyup.13="getid"></el-input>
+					<el-input v-model="nameid" placeholder="请输入Id" @keyup.13="getid"></el-input>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" v-on:click="getid">查询</el-button>
 				</el-form-item>
 				<el-form-item>
-					<el-button type="primary" @click="handleAdd">人员注册</el-button>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" @click="cardAdd">人员卡号注册</el-button>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" @click="cardUpdate">人员更新</el-button>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" @click="settime">时间段权限设置</el-button>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" @click="dsettime">删除时间段权限设置</el-button>
+					<el-button type="primary" @click="handleEdit">识别记录删除</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -31,19 +19,25 @@
 				<el-dialog :visible.sync="dialogLogin"  width="480px" :modal="true" :modal-append-to-body="false" :lock-scroll="false" :show-close="false">
 					<div class="registercontain" v-show="registerShow">
 							<el-form label-width="90px">
-								<el-form-item label="请输入id">
-									<el-input v-model="formLogin.id" placeholder="请输入id"></el-input>
+								<el-form-item label="personId">
+									<el-input v-model="formLogin.personId" placeholder="请输入personId"></el-input>
 								</el-form-item>
 									<br>
-								<el-form-item label="idcardNum">
-									<el-input v-model="formLogin.idcardNum" placeholder="请输入idcardNum"></el-input>
+								<el-form-item label="faceId">
+									<el-input v-model="formLogin.faceId" placeholder="请输入faceId"></el-input>
 								</el-form-item>
 									<br>
-								<el-form-item label="请输入姓名">
-									<el-input v-model="formLogin.userName" placeholder="请输入姓名"></el-input>
+								<el-form-item label="照片">
+									<el-upload
+									class="upload-demo"
+									action=''
+									:on-change="choise_file"
+									list-type="picture">
+									<el-button size="small" type="primary">选择图片</el-button>
+									</el-upload>
 								</el-form-item>
 									<br>
-									<el-button class="register" @click.prevent="Loginbtn" type="primary">人员注册</el-button>
+									<el-button class="register" type="primary">注册</el-button>
 							</el-form> 
 					</div>
 				</el-dialog> 
@@ -57,7 +51,7 @@
 									<el-input v-model='personId' placeholder="请输入id"></el-input>
 								</el-form-item>
 									<br>
-									<el-button class="register" @click.prevent="cardbtn" type="primary">人员卡号注册</el-button>
+									<el-button class="register" @click.prevent="cardbtn" type="primary">拍照注册</el-button>
 							</el-form> 
 					</div>
 				</el-dialog> 
@@ -67,19 +61,13 @@
 				<el-dialog :visible.sync="dialogUpdate"  width="480px" :modal="true" :modal-append-to-body="false" :lock-scroll="false" :show-close="false">
 					<div class="registercontain" v-show="updateShow">
 							<el-form label-width="90px">
-								<el-form-item label="请输入id">
-									<el-input v-model="formUpdate.id" placeholder="请输入id"></el-input>
+									<br>
+								<el-form-item label="删除时间">
+									<el-input v-model="deletefaceId" placeholder="格式:2017-07-15 12:05:00"></el-input>
 								</el-form-item>
 									<br>
-								<el-form-item label="idcardNum">
-									<el-input v-model="formUpdate.idcardNum" placeholder="请输入idcardNum"></el-input>
-								</el-form-item>
 									<br>
-								<el-form-item label="请输入姓名">
-									<el-input v-model="formUpdate.userName" placeholder="请输入姓名"></el-input>
-								</el-form-item>
-									<br>
-									<el-button class="register" @click.prevent="updatebtn" type="primary">人员更新</el-button>
+									<el-button class="register" @click.prevent="Loginbtn" type="primary">更新</el-button>
 							</el-form> 
 					</div>
 				</el-dialog> 
@@ -98,20 +86,6 @@
 								</el-form-item>
 									<br>
 									<el-button class="register01" @click.prevent="timebtn" type="primary">设置时间权限</el-button>
-							</el-form> 
-					</div>
-				</el-dialog> 
-		</transition>
-
-		<transition name="el-fade-in-linear">
-				<el-dialog :visible.sync="ddialogtime"  width="480px" :modal="true" :modal-append-to-body="false" :lock-scroll="false" :show-close="false">
-					<div class="registercontain" v-show="dtimeShow">
-							<el-form label-width="90px">
-								<el-form-item label="请输入id">
-									<el-input v-model="dpersonId" placeholder="请输入id"></el-input>
-								</el-form-item>
-									<br>
-									<br>
 									<el-button class="register02" @click.prevent="deletetimebtn" type="primary">删除时间权限</el-button>
 							</el-form> 
 					</div>
@@ -127,18 +101,21 @@
 			</el-table-column>
 			<el-table-column prop="id" label="id" width="100" sortable>
 			</el-table-column>
-			<el-table-column prop="name" label="姓名" width="160" sortable>
+			<el-table-column prop="personId" label="personId" width="160" sortable>
 			</el-table-column>
-			<el-table-column prop="idcardNum" label="卡号" width="160" sortable>
+			<el-table-column prop="path" label="照片" width="160" sortable>
+				<template slot-scope="scope"> 
+					<img :src="scope.row.path" width="100" height="100"/> 
+				</template> 
 			</el-table-column>
-			<el-table-column prop="createTime" label="注册时间" width="200" :formatter="formatDate" sortable>
+			<el-table-column prop="time" label="time" width="160" :formatter="formatDate" sortable>
 			</el-table-column>
-			<el-table-column label="操作" width="150">
+			<!-- <el-table-column label="操作" width="150">
 				<template slot-scope="scope">
-					<!-- <el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button> -->
-					<el-button type="danger" size="small" @click="handleDel(scope.$index, scope.row)">删除</el-button>
+					<el-button size="small" @click="handleEdit(users)">更新</el-button>
+					<el-button type="danger" size="small" @click="handleDel(users)">删除</el-button>
 				</template>
-			</el-table-column>
+			</el-table-column> -->
 		</el-table>
 		<el-pagination
 			:current-page.sync="currentPage3"
@@ -151,16 +128,8 @@
 			prev-text='上一页'
 			next-text='下一页'>
 		</el-pagination>
-		<!--工具条-->		
-		<br>
-		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;padding-top:16px;">
-			<el-button type="danger" @click="batchRemove" :disabled="this.sels.length===0">批量删除</el-button>
-			<el-pagination layout="prev, pager, next" @current-change="handleCurrentChange" :page-size="20" :total="total" style="float:right;">
-			</el-pagination>
-		</el-col>
-
-
 	</section>
+
 </template>
 
 <script>
@@ -169,6 +138,7 @@ var moment = require('moment');
 	export default {
 		data() {
 			return {
+				deletefaceId:'',
 				listnumtotal:0,
 				currentPage3:0,
 				cur_page:'',//当前页数
@@ -176,7 +146,7 @@ var moment = require('moment');
 					name: ''
 				},
 				users: [],
-				total: 0,
+				total:0,
 				page: 1,
 				listLoading: false,
 				sels: [],//列表选中列
@@ -189,58 +159,61 @@ var moment = require('moment');
 				nameid:'',
 				dialogtime:false,
 				timeShow:'',
-				ddialogtime:false,
-				dtimeShow:'',
+				imageUrl:'',
+				imageUpdateUrl:'',
 				formLogin: {
-						pass:'create1',
-						userName: '',
-						id: '',
-						idcardNum:''
+					pass:'create1',
+					personId: '',
+					faceId: '',
+					imgBase64:''
 				},
+				faceId:'',
 				formUpdate: {
 					pass:'create1',
-					userName: '',
-					id: '',
-					idcardNum:''
+					personId: '',
+					faceId: '',
 				},
 				formtime: {
 					passtime: '',
-					personId: '',
+					id: '',
 				},
-				dpersonId: '',
 				personId: '',
 			}
 		},
 		methods: {
 			formatDate:function(row, column) {
 				var date = row[column.property];
-			          if (date == undefined) {
-			             return "";
-			          }
-           		return moment(date).format("YYYY-MM-DD HH:mm:ss");
+	          	if (date == undefined) {
+	             	return "";
+	          	}
+	           return moment(date).format("YYYY-MM-DD HH:mm:ss");
+			},
+			handleEdit: function (users) {
+				console.log(users[0].faceId)
+				console.log(users[0].personId)
+				this.formUpdate.faceId = users[0].faceId
+				this.formUpdate.personId = users[0].personId
+				this.dialogUpdate = true;
+				this.updateShow = true;
 			},
 			Loginbtn(){
-				this.axios.post('/person/create',
+				this.axios.post('/deleteRecords',
 				qs.stringify({
 					pass:'create1',
-					userName: this.formLogin.userName,//用户输入的名称
-					id: this.formLogin.id,
-					idcardNum:this.formLogin.idcardNum
+					time: this.deletefaceId,
 				}),
 				{
 					headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
 					'Access-Control-Allow-Headers':'*'},
 				})
 				.then(response => {
-					this.serialNumber=response.data.data
-					console.log(response.data.data)
 				})
 				.catch(function (error) {
 					console.log(error);
 				});
 			},
 			cardbtn(){
-				this.axios.post('/face/icCardRegist',
+				this.axios.post('/face/takeImg',
 				qs.stringify({
 					pass:'create1',
 					personId:this.personId
@@ -250,20 +223,18 @@ var moment = require('moment');
 					'Access-Control-Allow-Headers':'*'},
 				})
 				.then(response => {
-					this.serialNumber=response.data.data
-					console.log(response.data.data)
 				})
 				.catch(function (error) {
 					console.log(error);
 				});
 			},
 			updatebtn(){
-				this.axios.post('/person/update',
+				this.axios.post('/face/update',
 				qs.stringify({
-						pass:'create1',
-						userName: this.formUpdate.userName,//用户输入的名称
-						id: this.formUpdate.id,
-						idcardNum:this.formUpdate.idcardNum
+					pass:'create1',
+					personId: this.formLogin.personId,//用户输入的名称
+					faceId: this.formLogin.faceId,
+					imgBase64:this.formLogin.imageUpdateUrl
 				}),
 				{
 					headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
@@ -276,27 +247,18 @@ var moment = require('moment');
 				});
 			},
 			getid(){
-				this.axios.post('/person/find',
-				qs.stringify({
-					pass:'create1',
-					id:this.nameid
-				}),
+				this.axios.get('/findRecords?pass=create1&personId='+this.nameid+'&length=10&index=0&startTime=0&endTime=0',
 				{
 					headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
 					'Access-Control-Allow-Headers':'*'},
 				})
-				.then(response => {
-					// console.log(response)
-					this.listLoading = false;
-					console.log(response.data.data)
-					this.users=response.data.data
+				.then(response => {  
+					this.users=response.data.data.records
+					this.listnumtotal=response.data.data.pageInfo.total
 				})
-				.catch(function (error) {
-					console.log(error);
-				});
 			},
 			timebtn(){
-				this.axios.post('/person/creatPasstime',
+				this.axios.post('/face/creatPasstime',
 				qs.stringify({
 					pass:'create1',
 					personId:this.formtime.personId?this.formtime.personId:-1,
@@ -315,7 +277,7 @@ var moment = require('moment');
 				});
 			},
 			timebtn(){
-				this.axios.post('/person/deletePasstime',
+				this.axios.post('/face/deletePasstime',
 				qs.stringify({
 					pass:'create1',
 					personId:this.formtime.personId?this.formtime.personId:-1
@@ -332,6 +294,14 @@ var moment = require('moment');
 					console.log(error);
 				});
 			},
+			choise_file (file) {
+				let reader = new FileReader()
+				reader.onload = () => {
+					let _base64 = reader.result
+					this.imageUpdateUrl = _base64.split(",")[1];
+				}
+				reader.readAsDataURL(file.raw)  
+			},
 			//性别显示转换
 			formatSex: function (row, column) {
 				return row.sex == 1 ? '男' : row.sex == 0 ? '女' : '未知';
@@ -342,11 +312,17 @@ var moment = require('moment');
 			},
 			//获取用户列表
 			getUsers() {
-				this.axios.post('/person/findByPage',
-				qs.stringify({
-					pass:'create1',
-					personId:-1
-				}),
+				this.axios.get('/findRecords?pass=create1&personId=-1&length=10&index=0&startTime=0&endTime=0',
+				// qs.stringify({
+				// 	params:{
+				// 		pass:'create1',
+				// 		personId:-1,
+				// 		length:-1,
+				// 		index:0,
+				// 		startTime:0,
+				// 		endTime:0
+				// 	}
+				// }),
 				{
 					headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
 					'Access-Control-Allow-Headers':'*'},
@@ -354,8 +330,8 @@ var moment = require('moment');
 				.then(response => {
 					// console.log(response)
 					this.listLoading = false;
-					console.log(response.data.data.personInfos)
-					this.users=response.data.data.personInfos
+					console.log(response.data.data)
+					this.users=response.data.data.records
 					this.listnumtotal=response.data.data.pageInfo.total
 				})
 				.catch(function (error) {
@@ -383,7 +359,7 @@ var moment = require('moment');
 			},
 			//根据页数获取数据
 			getData(){
-				this.axios.get('/findRecords?pass=create1&personId=-1&length=10&index='+this.cur_page,
+				this.axios.get('/findRecords?pass=create1&personId=-1&length=10&index='+this.cur_page+'&startTime=0&endTime=0',
 				{
 					headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
 					'Access-Control-Allow-Headers':'*'},
@@ -394,28 +370,31 @@ var moment = require('moment');
 				})
 			},
 			//删除
-			handleDel: function (index, row) {
+			handleDel: function (users) {
 				this.$confirm('确认删除该记录吗?', '提示', {
 					type: 'warning'
 				}).then(() => {
 					this.listLoading = true;
-					//NProgress.start();
-					let para = { id: row.id };
-					removeUser(para).then((res) => {
+					this.axios.post('/face/find',
+					qs.stringify({
+						pass:'create1',
+						faceId:-1
+					}),
+					{
+						headers: {'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
+						'Access-Control-Allow-Headers':'*'},
+					})
+					.then(response => {
 						this.listLoading = false;
-						//NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getUsers();
+					})
+					.catch(function (error) {
+						this.$confirm('没有查询到相关的数据?', '提示', {
+							type: 'warning'
+						})
 					});
 				}).catch(() => {
 
 				});
-			},
-			//显示编辑界面
-			handleEdit: function (index, row) {
 			},
 			//显示新增界面
 			handleAdd: function () {
@@ -433,10 +412,6 @@ var moment = require('moment');
 			settime: function () {
 				this.dialogtime = true;
 				this.timeShow = true;
-			},
-			dsettime: function () {
-				this.ddialogtime = true;
-				this.dtimeShow = true;
 			},
 			//编辑
 			editSubmit: function () {
@@ -488,6 +463,7 @@ var moment = require('moment');
     /* background: @background-color; */
     border-radius: 60px;
 }
+
 .registercontain .register{
     position: absolute;
     height: 38px;
@@ -507,7 +483,7 @@ var moment = require('moment');
     height: 38px;
     width: 130px;
     top: 296px;
-    left: 42%;
+    left: 21%;
     /* background: @main-color;
     color: @background-color;
     font-size:@md-size; */
@@ -521,7 +497,7 @@ var moment = require('moment');
     height: 38px;
     width: 130px;
     top: 296px;
-    left: 42%;
+    left: 61%;
     /* background: @main-color;
     color: @background-color;
     font-size:@md-size; */

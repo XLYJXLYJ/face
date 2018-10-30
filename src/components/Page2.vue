@@ -10,7 +10,7 @@
 					<el-button type="primary" v-on:click="getid">设备IP</el-button>
 				</el-form-item> -->
 				<el-form-item>
-					<el-button type="primary" @click="handleAdd">设备IP</el-button>
+					<el-button type="primary" @click="handleAdd">有线网络配置</el-button>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" @click="cardAdd">wifi设置</el-button>
@@ -26,6 +26,15 @@
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" @click="setserial">获取设备序列号</el-button>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="seecallbackf">识别回调</el-button>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="registerback">照片注册回调</el-button>
+				</el-form-item>
+				<el-form-item>
+					<el-button type="primary" @click="heartback">照设备心跳回调</el-button>
 				</el-form-item>
 			</el-form>
 		</el-col>
@@ -197,6 +206,51 @@
 				</el-dialog> 
 		</transition>
 
+		<transition name="el-fade-in-linear">
+				<el-dialog :visible.sync="dialogseecallback"  width="480px" :modal="true" :modal-append-to-body="false" :lock-scroll="false" :show-close="false">
+						<div class="registercontain" v-show="seecallbackShow">
+						<label class="label" for="piccallback">请输入识别回调地址:
+						<br>
+						<el-input v-model="seecallback" name="seecallback" ></el-input>
+						</label>
+						<br>
+						<br>
+						<el-button type="primary" plain @click="setsee">确定</el-button>
+						<br>	
+					</div>
+				</el-dialog> 
+		</transition>
+
+		<transition name="el-fade-in-linear">
+				<el-dialog :visible.sync="dialogpiccallback"  width="480px" :modal="true" :modal-append-to-body="false" :lock-scroll="false" :show-close="false">
+						<div class="registercontain" v-show="piccallbackShow">
+						<label class="label" for="piccallback">请输入照片注册回调地址:
+						<br>
+						<el-input v-model="piccallback" name="piccallback" ></el-input>
+						</label>
+						<br>
+						<br>
+						<el-button type="primary" plain @click="setpic">确定</el-button>
+						<br>	
+					</div>
+				</el-dialog> 
+		</transition>
+
+		<transition name="el-fade-in-linear">
+				<el-dialog :visible.sync="dialogdevicecallback"  width="480px" :modal="true" :modal-append-to-body="false" :lock-scroll="false" :show-close="false">
+						<div class="registercontain" v-show="devicecallbackShow">
+						<label class="label" for="devicecallback">请输入设备心跳回调地址:
+						<br>
+						<el-input v-model="devicecallback" name="devicecallback" ></el-input>
+						</label>
+						<br>
+						<br>
+						<el-button type="primary" plain @click="setheart">确定</el-button>
+						<br>	
+					</div>
+				</el-dialog> 
+		</transition>
+
 
 		<!--列表-->
 		<el-table :data="users" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
@@ -236,6 +290,15 @@ var moment = require('moment');
 	export default {
 		data() {
 			return {
+				dialogdevicecallback:false,
+				dialogseecallback:false,
+				dialogpiccallback:false,
+				piccallbackShow:'',
+				devicecallbackShow:'',
+				seecallbackShow:'',
+				seecallback:'',
+				piccallback:'',
+				devicecallback:'',
 				imagelogoUrl:'',
 				oldPassage: '',
 				newPassage: '',
@@ -323,12 +386,76 @@ var moment = require('moment');
 			} 
 		},
 		methods: {
+			setsee(){
+				this.axios.post('/setIdentifyCallBack',
+				qs.stringify({
+					callbackUrl:this.seecallback,
+					pass:'create1'
+				}),		
+				{
+					headers: {'Content-Type':'application/x-www-form-urlencoded'},
+				})
+				.then(response => {
+					console.log(response.data.data)
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
+			},
+			setpic(){
+				this.axios.post('/setImgRegCallBack',
+				qs.stringify({
+					callbackUrl:this.piccallback,
+					pass:'create1'
+				}),		
+				{
+					headers: {'Content-Type':'application/x-www-form-urlencoded'},
+				})
+				.then(response => {
+					console.log(response.data.data)
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
+			},	
+			setpic(){
+				this.axios.post('/setImgRegCallBack',
+				qs.stringify({
+					callbackUrl:this.piccallback,
+					pass:'create1'
+				}),		
+				{
+					headers: {'Content-Type':'application/x-www-form-urlencoded'},
+				})
+				.then(response => {
+					console.log(response.data.data)
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
+			},	
+			setheart(){
+				this.axios.post('/setIdentifyCallBack',
+				qs.stringify({
+					callbackUrl:this.devicecallback,
+					pass:'create1'
+				}),		
+				{
+					headers: {'Content-Type':'application/x-www-form-urlencoded'},
+				})
+				.then(response => {
+					console.log(response.data.data)
+				})
+				.catch(function (error) {
+					console.log(error);
+				});
+			},
 			handleRemove(file, fileList) {
-        console.log(file, fileList);
-      },
-      handlePreview(file) {
-        console.log(file);
-      },
+				console.log(file, fileList);
+			},
+			handlePreview(file) {
+				console.log(file);
+			},
 			logo_file (file) {
 				let reader = new FileReader()
 				reader.onload = () => {
@@ -646,6 +773,18 @@ var moment = require('moment');
 			setlogo: function () {
 				this.dialoglogo = true;
 				this.logoShow = true;
+			},
+			seecallbackf:function(){
+				this.dialogseecallback = true;
+				this.seecallbackShow = true;
+			},
+			registerback:function(){
+				this.dialogpiccallback = true;
+				this.piccallbackShow = true;
+			},
+			heartback:function(){
+				this.dialogdevicecallback = true;
+				this.devicecallbackShow = true;
 			},
 			setserial: function () {
 				this.dialogserial = true;
